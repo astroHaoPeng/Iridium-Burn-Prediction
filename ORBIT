@@ -9,7 +9,7 @@
 
 %% INITIALIZATION
 clear all, close all;                   % Clear variables, clear plots
-load vars.mat R1eci V1eci R2eci V2eci;  % Load state vectors from SPIRALBUDGET
+load vars.mat R1eci V1eci R2eci V2eci;  % Load state vectors from BUDGET
 load vars.mat alt1 alt2 T1              % Load altitudes and period
 load vars.mat t_burn m_wet mdot         % Burn time, wet mass, mass flow rate
 disp('ORBIT (c) 2017 Ray Patrick')
@@ -23,11 +23,9 @@ m0 = m_wet;                         % Initial mass (kg)
 [t0,n0,X0,Y0,Z0,U0,V0,W0,M0,Rf0,Vf0] = orbitfcn(R1eci,V1eci,m0,2*T1);
 
 % Burn phase
-warning off;
 [t1,n1,X1,Y1,Z1,U1,V1,W1,M1,Rf1,Vf1] = burnfcn(Rf0,Vf0,m0,t_burn);
 
 % Coast phase 2
-warning off;
 T2 = sv2coe(Rf1,Vf1);               % Compute period of new orbit
 [t2,n2,X2,Y2,Z2,U2,V2,W2,M2,Rf2,Vf2] = orbitfcn(Rf1,Vf1,M1(n1),2*T2);
 
