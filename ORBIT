@@ -1,17 +1,14 @@
 %% ORBIT (c) 2017 Ray Patrick
 % This algorithm uses the results from SPIRALBUDGET to propagate the spacecraft
-% trajectory forward in time. First, the vehicle moves under the power of thrust
-% for the time specified in SPIRALBUDGET (the burn phase). Then, the spacecraft
-% is allowed to coast through the target orbit for two periods
+% trajectory forward in time. First, the vehicle coasts through its initial
+% parking orbit for two revolutions. Second, the vehicle moves under the power 
+% of thrust for the time specified in SPIRALBUDGET (the burn phase). Then, the 
+% spacecraft is allowed to coast through the final orbit for two revolutions
 % (the coast phase.) Plots are generated to help visualize the data.
 % FUNCTION DEPENDENCIES: burnfcn, orbitfcn, emag
 
 %% INITIALIZATION
-figure(1), clf;                         % Clear previous figure windows
-figure(2), clf;
-figure(3), clf;
-figure(4), clf;
-clear all, clc;                         % Clear variables, wipe screen
+clear all, close all;                   % Clear variables, clear plots
 load vars.mat R1eci V1eci R2eci V2eci;  % Load state vectors from SPIRALBUDGET
 load vars.mat alt1 alt2 T1              % Load altitudes and period
 load vars.mat t_burn m_wet mdot         % Burn time, wet mass, mass flow rate
@@ -20,46 +17,53 @@ disp('ORBIT (c) 2017 Ray Patrick')
 %% SET INITIAL CONDITIONS
 r_e = 6371;                         % Radius of Earth (km)
 m0 = m_wet;                         % Initial mass (kg)
-F = 8/1000;                         % Thrust (kN)
 
 %% PROPAGATION
+% Coast phase 1
+[t0,n0,X0,Y0,Z0,U0,V0,W0,M0,Rf0,Vf0] = orbitfcn(R1eci,V1eci,m0,2*T1);
+
 % Burn phase
 warning off;
-[t1,n1,X1,Y1,Z1,U1,V1,W1,M1,Rf1,Vf1] = burnfcn(R1eci,V1eci,m0,mdot,F,t_burn);
+[t1,n1,X1,Y1,Z1,U1,V1,W1,M1,Rf1,Vf1] = burnfcn(Rf0,Vf0,m0,t_burn);
 
-% Coast phase
+% Coast phase 2
 warning off;
 T2 = sv2coe(Rf1,Vf1);               % Compute period of new orbit
 [t2,n2,X2,Y2,Z2,U2,V2,W2,M2,Rf2,Vf2] = orbitfcn(Rf1,Vf1,M1(n1),2*T2);
 
 % Concatenate Output
-t = [t1;(t2+t1(n1))];   % Time vector (s)
-t2c = t2+t1(n1);        % Time vector 2, offset (s)
-n = n1 + n2;            % Highest index (integer)
-X = [X1;X2];            % X-position values (km)
-Y = [Y1;Y2];            % Y-position values (km)
-Z = [Z1;Z2];            % Z-position values (km)
-U = [U1;U2];            % X-velocity values (km/s)
-V = [V1;V2];            % Y-velocity values (km/s)
-W = [W1;W2];            % Z-velocity values (km/s)
-M = [M1;M2];            % Mass values (kg)
+t = [t0;(t1+t0(n0));(t2+t1(n1))];   % Time vector (s)
+t1c = t1+t0(n0);        % Time vector 1, offset (s)
+t2c = t2+t1c(n1);        % Time vector 2, offset (s)
+n = n0+n1+n2;            % Highest index (integer)
+X = [X0;X1;X2];            % X-position values (km)
+Y = [Y0;Y1;Y2];            % Y-position values (km)
+Z = [Z0;Z1;Z2];            % Z-position values (km)
+U = [U0;U1;U2];            % X-velocity values (km/s)
+V = [V0;V1;V2];            % Y-velocity values (km/s)
+W = [W0;W1;W2];            % Z-velocity values (km/s)
+M = [M0;M1;M2];            % Mass values (kg)
 
+R0 = emag(X0,Y0,Z0);    % Radius magnutude values (km)
+Rd0 = emag(U0,V0,W0);   % Orbit velocity values (km/s)
 R1 = emag(X1,Y1,Z1);    % Radius magnitude values (km)
 Rd1 = emag(U1,V1,W1);   % Orbit velocity values (km/s)
 R2 = emag(X2,Y2,Z2);    % Radius magnitude values (km)
 Rd2 = emag(U2,V2,W2);   % Orbit velocity values (km/s)
 
-R = [R1;R2];            % Concatenated radius vector (km)
-Rd = [Rd1;Rd2];         % Concatenated velocity vector (km/s)
+R = [R0;R1;R2];            % Concatenated radius vector (km)
+Rd = [Rd0;Rd1;Rd2];         % Concatenated velocity vector (km/s)
 
 %% OUTPUT
 disp('Generating plots ...')
+
 % Plot Altitude (km)
 figure(1)
 hold on
-plot(t1,R1-r_e,'r')
+plot(t0,R0-r_e,'k')
+plot(t1c,R1-r_e,'r')
 plot(t2c,R2-r_e,'b')
-legend('Burn phase','Coast phase')
+legend('Coast 1','Burn','Coast 2','location','northwest')
 title('Orbit Altitude')
 xlabel('Time (s)')
 ylabel('Altitude (km)')
@@ -68,9 +72,10 @@ hold off
 % Plot Velocity (km/s)
 figure(2)
 hold on
-plot(t1,Rd1,'r')
+plot(t0,Rd0,'k')
+plot(t1c,Rd1,'r')
 plot(t2c,Rd2,'b')
-legend('Burn phase','Coast phase')
+legend('Coast 1','Burn','Coast 2')
 title('Orbit Velocity')
 xlabel('Time (s)')
 ylabel('Velocity (km/s)')
@@ -79,9 +84,10 @@ hold off
 % Plot Vehicle Mass (kg)
 figure(3)
 hold on
-plot(t1,M1,'r')
+plot(t0,M0,'k')
+plot(t1c,M1,'r')
 plot(t2c,M2,'b')
-legend('Burn phase','Coast phase')
+legend('Coast 1','Burn','Coast 2')
 title('Vehicle Mass')
 xlabel('Time (s)')
 ylabel('Mass (kg)')
@@ -90,11 +96,12 @@ hold off
 % 3D Orbit Plot (km)
 figure(4)
 hold on
+plot3(X0,Y0,Z0,'k')
 plot3(X1,Y1,Z1,'r')
 plot3(X2,Y2,Z2,'b')
 plot3(0,0,0,'k.')
 view(3)
-legend('Burn phase','Coast phase')
+legend('Coast 1','Burn','Coast 2')
 hold off
 title('Iridium-NEXT Spiral-Up Maneuver')
 xlabel('X (km)')
@@ -112,3 +119,13 @@ elseif mean(R2)-r_e < alt2
 else
     fprintf('Exact solution! \n')
 end
+
+% Final Orbit characteristics
+% The burn should not be introducing any eccentricity, but it's certainly
+% coming from somewhere. This shows the eccentricity of the final orbit.
+[Tf,af,eccf,u1,u2,u3,u4]=sv2coe(Rf2,Vf2);clear u*;
+apogeef=af*(1+eccf)-r_e; perigeef=af*(1-eccf)-r_e;
+fprintf('Eccentricity of final orbit: %4.6f \n',eccf)
+fprintf('Apogee: %4.2f km \n',apogeef)
+fprintf('Perigee: %4.2f km \n',perigeef)
+fprintf('Altitude variance: %4.2f km \n',apogeef-perigeef)
