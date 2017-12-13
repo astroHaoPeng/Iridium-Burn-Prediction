@@ -1,0 +1,19 @@
+%% FUNCTION orbiteqn (c) 2017 Ray Patrick
+% This function provides the vector to be integrated by the ode45 numeric
+% integration solver. It is equivalent to the time derivative of the satellite
+% state vector. This version of the vector does not include thrust terms.
+% FUNCTION DEPENDENCIES: None
+
+function [dydt] = orbiteqn(t,y)
+% Constants and ICs
+mu = 398600;            % Earth gravitational parameter (km^3/s^2)
+
+% ODE Vector (2-body equation)
+dydt(1) = y(4);
+dydt(2) = y(5);
+dydt(3) = y(6);
+dydt(4) = -mu*y(1)*(y(1)^2+y(2)^2+y(3)^2)^(-3/2);
+dydt(5) = -mu*y(2)*(y(1)^2+y(2)^2+y(3)^2)^(-3/2);
+dydt(6) = -mu*y(3)*(y(1)^2+y(2)^2+y(3)^2)^(-3/2);
+dydt(7) = 0;
+end
