@@ -2,7 +2,7 @@
 % This function propagates an orbit based on two-body gravitational attraction
 % and constant thrust.
 %
-% FUNCTION DEPENDENCIES: emag
+% FUNCTION DEPENDENCIES: emag, burneqn
 %
 % FUNCTION INPUTS:
 % R0        % Initial position vector (km)
