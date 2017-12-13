@@ -1,0 +1,72 @@
+# Created by Octave 4.0.1-rc1, Wed Dec 13 01:03:42 2017 UTC <unknown@oo-back-cluster-as35f2b947>
+# name: t_burn
+# type: scalar
+10330.20560869073
+
+
+# name: alt1
+# type: scalar
+625
+
+
+# name: alt2
+# type: scalar
+780
+
+
+# name: T1
+# type: scalar
+5823.524707380702
+
+
+# name: R1eci
+# type: matrix
+# rows: 3
+# columns: 1
+ -4600.87417877219
+ 5211.521215422212
+ -784.8690415040682
+
+
+# name: R2eci
+# type: matrix
+# rows: 3
+# columns: 1
+ -4702.808926872488
+ 5326.985164591801
+ -802.2582212400787
+
+
+# name: V1eci
+# type: matrix
+# rows: 3
+# columns: 1
+ 0.2012612330375281
+ -0.9496614519626604
+ -7.485527016562585
+
+
+# name: V2eci
+# type: matrix
+# rows: 3
+# columns: 1
+ 0.1990680858428088
+ -0.9393129744249289
+ -7.403957097062444
+
+
+# name: m_wet
+# type: scalar
+1024
+
+
+# name: mdot
+# type: scalar
+0.003708058956283376
+
+
+# name: thrust
+# type: scalar
+8
+
+
