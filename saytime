@@ -1,48 +1,52 @@
 %% FUNCTION saytime (c) 2017 Ray Patrick
 % Accepts a time (s) and a string ("Period", "Burn Time", etc.) and returns a
 % formated statement of the form:
-% 'str: H.HH hr, M.MM min, S.SS sec.'
+% 'str: YY yr DD day HH hr MM min SS.SS sec'
 
 function[] = saytime(t,str);
+yearsec = 31557600;
+daysec = 86400;
+hrsec = 3600;
+minsec = 60;
 
-if t >= 31557600
+if t >= yearsec
     % For t > 1 year
-    yr = floor(t/31557600);
-    day = floor((t/31557600 - yr)*60);
-    hr = floor((((t/31557600 - yr)*60)-day)*60);
-    min = floor((((((t/31557600 - yr)*60)-day)*60)-hr)*60);
-    sec = ((((((t/31557600 - yr)*60)-day)*60)-hr)*60)-min;
+    y = floor(t/yearsec);
+    d = floor((t-(y*yearsec))/daysec);
+    h = floor((t-(y*yearsec)-(d*daysec))/hrsec);
+    m = floor(((t-(y*yearsec)-(d*daysec)-(h*hrsec))/minsec));
+    s = (t-(y*yearsec)-(d*daysec)-(h*hrsec)-(m*minsec));
     fprintf(str);
     fprintf(': ');
-    fprintf('%4.0f yr %4.0f day %4.0f hr %4.0f min %4.2f sec \n', yr,day,hr,min,sec);
-elseif t >= 86400
+    fprintf('%4.0f yr %4.0f day %4.0f hr %4.0f min %4.2f sec \n', y,d,h,m,s);
+elseif t >= daysec
     % For 1 day < t < 1 year
-    day = floor(t/86400);
-    hr = floor((t/86400 - day)*60);
-    min = floor((((t/86400 - day)*60)-hr)*60);
-    sec = ((((t/86400 - day)*60)-hr)*60)-min;
+    d = floor(t/daysec);
+    h = floor((t-(d*daysec))/hrsec);
+    m = floor((t-(d*daysec)-(h*hrsec))/minsec);
+    s = (t-(d*daysec)-(h*hrsec)-(m*minsec));
     fprintf(str);
     fprintf(': ');
-    fprintf('%4.0f day %4.0f hr %4.0f min %4.2f sec \n', day,hr,min,sec);
-elseif t >= 3600
+    fprintf('%4.0f day %4.0f hr %4.0f min %4.2f sec \n', d,h,m,s);
+elseif t >= hrsec
     % For t < 1 day
-    hr = floor(t/3600);
-    min = floor((t/3600 - hr)*60);
-    sec = (((t/3600 - hr)*60)-min)*60;
+    h = floor(t/hrsec);
+    m = floor((t-(h*hrsec))/minsec);
+    s = (t-(h*hrsec)-(m*minsec));
     fprintf(str);
     fprintf(': ');
-    fprintf('%4.0f hr %4.0f min %4.2f sec \n', hr,min,sec);
-elseif t >=60
+    fprintf('%4.0f hr %4.0f min %4.2f sec \n', h,m,s);
+elseif t >= minsec
     % for t < 1 hour
-    min = floor(t/60);
-    sec = (t/60)-min;
+    m = floor(t/minsec);
+    s = (t-(m*minsec));
     fprintf(str);
     fprintf(': ');
-    fprintf('%4.0f min %4.2f sec \n', min,sec);
+    fprintf('%4.0f min %4.2f sec \n', m,s);
 else
     % for t < 1 second
-    sec = t;
+    s = t;
     fprintf(str);
     fprintf(': ');
-    fprintf('%4.2f sec \n', sec);
+    fprintf('%4.2f sec \n', s);
 end
