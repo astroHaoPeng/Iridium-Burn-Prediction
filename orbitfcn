@@ -1,7 +1,7 @@
 %% FUNCTION orbitfcn (c) 2017 Ray Patrick
 % This function propagates an orbit based on two-body gravitational attraction.
 %
-% FUCNTION DEPENDENCIES: emag, orbiteqn
+% FUCNTION DEPENDENCIES: emag
 %
 % FUNCTION INPUTS:
 % R0        % Initial position vector (km)
@@ -30,7 +30,7 @@ y0 = [R0; V0; m0];              % Initial state vector
 % Uses ode45, a fourth-order Euler integrator.
 % Should use ode23t, a symplectic integrator. Not supported in OCTAVE though.
 fprintf('Calculating coast phase motion ... ')
-warning off;
+warning('off')
 [t,y] = ode45(@orbiteqn,tspan,y0);
 
 %% ORGANIZE OUTPUT
