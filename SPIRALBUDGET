@@ -1,0 +1,67 @@
+%% SPIRALBUDGET (c) 2017 Ray Patrick
+% This algorithm computes the required Delta-V, propellant usage, and burn time for a low-thrust "spiral" orbit transfer.
+% It is assumed that the initial and target orbits are circular and coplanar.
+% FUNCTION DEPENDENCIES: coeprep, prop4dv, saytime
+
+%% INITIALIZATION
+% Initialize Workspace
+clc, clear all, format short;
+
+%% PHYSICAL CONSTANTS
+mu = 398600;                % Standard Gravitational Parameter, Earth (km^3/s^2)
+g0 = 9.80665;               % Standard Acceleration Due To Gravity (m/s^2)
+r_e = 6371;                 % Mean Radius of Earth (km)
+
+%% VEHICLE INFORMATION (IRIDIUM-NEXT)
+% This vehicle uses the ELiTeBus-1000 from Thales Alenia, which has nine 1-N
+% thrusters (8 on the aft face and 1 on the forward face.)
+m_dry = 860;                % Vehicle Dry Mass (kg)
+m_prop = 164;               % Propellant Mass (kg)
+m_wet = m_dry+m_prop;       % Vehicle Wet Mass (kg)
+Isp = 220;                  % Specific Impulse of Monopropellant Hydrazine (s)
+Ve = Isp*g0;                % Characteristic Exhaust Velocity, Hydrazine (m/s)
+mdot_t = 1/Ve;              % Mass Flow Rate for One 1-N Thruster (kg/s)
+
+%% ORBIT INFORMATION
+% Mission Data (from 2017-003D)
+alt1 = 625;                 % Parking Orbit Altitude (km)
+alt2 = 780;                 % Final Orbit Altitude (km)
+r1 = alt1+r_e;              % Parking Orbit Radius (km)
+r2 = alt2+r_e;              % Final Orbit Radius (km)
+T1 = 2*pi*sqrt(r1^3/mu);    % Parking Orbit Period (s)
+T2 = 2*pi*sqrt(r2^3/mu);    % Final Orbit Period (s)
+
+% Orbital Element Set
+e = 0;                      % Eccentricity
+i = 86.3950;                % Inclination (deg)
+O = 311.0314;               % Right Ascension of the Ascending Node (deg)
+o = 93.2986;                % Argument of Perigee (deg)
+M = 266.8443;               % Mean Anomaly (deg)
+
+%% OBTAIN STATE VECTOR FOR PARKING ORBIT
+[R1eci,V1eci] = coeprep(alt1,e,i,O,o,M);
+[R2eci,V2eci] = coeprep(alt2,e,i,O,o,M);
+R1eci=transpose(R1eci);V1eci=transpose(V1eci);
+R2eci=transpose(R2eci);V2eci=transpose(V2eci);
+
+%% TRANSFER MANEUVER
+% This section calculates the Delta-V requirements and time-of-flight to raise
+% the orbital altitude from 625 km to 780 km.
+DV = (sqrt(mu/r1)-sqrt(mu/r2))*1000;  % Required Delta-V (m/s)
+p_used = prop4dv(m_wet,DV,Ve);        % Propellant Used in Manuever (kg)
+mdot = 8*mdot_t;                      % Mass flow rate for 8 thrusters (kg/s)
+t_burn = p_used/mdot;                 % Burn Time (s)
+
+%% FILE I/O
+save vars.mat t_burn alt1 alt2 T1 R1eci R2eci V1eci V2eci m_wet mdot g0 mu r_e
+
+%% OUTPUT
+% Set error messages
+disp('SPIRALBUDGET (c) 2017 Ray Patrick');
+
+% Display transfer time, burn time
+fprintf('Transfer from %4.0f km to %4.0f km orbit: \n',alt1,alt2);
+fprintf('Propellant used: %4.2f kg. \n',p_used);
+saytime(T1, 'Period of initial orbit');
+saytime(T2, 'Period of target orbit');
+saytime(t_burn, 'Computed burn time');
