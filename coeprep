@@ -1,0 +1,70 @@
+%% FUNCTION coeprep (c) 2017 Ray Patrick
+% Takes COEs found in any TLE set, then calculates the required alternate COEs
+% to use Vallado's orb2rv function.
+%
+% FUNCTION DEPENDENCIES: orb2rv
+%
+% CAUTION:
+% This function only works with a circular orbit!
+% INPUTS:
+% alt       Orbit altitude (km)
+% e         Eccentricity (Must be zero)
+% i         Inclination (deg)
+% O         Right ascension of the ascending node (deg)
+% o         Argument of perigee (deg)
+% M         Mean anomaly (deg)
+% OUTPUTS:
+% R         ECI position vector (km)
+% V         ECI velocity vector (km/s)
+
+function [R,V] = coeprep(alt,e,i,O,o,M)
+
+% Physical Parameters
+r_e = 6371;                 % Earth radius (km)
+mu = 398600;                % Earth gravitational parameter (km^3/s^2)
+
+% Mission Data (from 2017-003D)
+a1 = 625;                   % Parking Orbit Altitude (km)
+a2 = 780;                   % Final Orbit Altitude (km)
+r1 = a1+r_e;                % Parking Orbit Radius (km)
+r2 = a2+r_e;                % Final Orbit Radius (km)
+T1 = 2*pi*sqrt(r1^3/mu);    % Parking Orbit Period (s)
+T2 = 2*pi*sqrt(r2^3/mu);    % Final Orbit Period (s)
+
+% Orbital Element Set
+e = 0;                      % Eccentricity
+i = degtorad(i);            % Inclination (rad)
+O = degtorad(O);            % Right Ascension of the Ascending Node (rad)
+o = degtorad(o);            % Argument of Perigee (rad)
+
+% Compute Semilatus Rectum:
+a = alt+r_e;                % Semimajor Axis (km)
+b = sqrt(-a^2*(e^2-1));     % Semiminor Axis (km)
+p = b^2/a;                  % Semilatus Rectum (km)
+
+% Compute True Anomaly, True Longitude, Argument of Latitude & Arg. Perigee
+M = degtorad(266.8443);       % Mean Anomaly (rad)
+tol = 10^-8;                % Convergance Tolerance
+Etemp = M;                  % Initialize Placeholder Variable for E
+ratio = 1;                  % Initialize Placeholder Variable for Ratio
+
+% Compute Eccentric Anomaly (Newton-Raphson Method)
+while abs(ratio) > tol
+    f_E = Etemp - e*sin(Etemp) - M;
+    f_Eprime = 1 - e*cos(Etemp);
+    ratio = f_E/f_Eprime;
+    if abs(ratio) > tol
+        Etemp = Etemp - ratio;
+    else
+        E = Etemp;
+    end
+end
+
+nu = acos(cos(E)-e)/(1-e*cos(E));   % True Anomaly (rad)
+truLon = nu+(o+O);                  % True Longitude (rad)
+argLat = nu+o;                      % Argument of Latitude (rad)
+lonPer = O+o;                       % Longitude of Perigee (rad)
+
+%% CONVERT OES to STATE VECTORS IN ECI FRAME
+[R,V] = orb2rv(p,e,i,O,o,nu,argLat,truLon,lonPer);
+end
