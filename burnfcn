@@ -2,14 +2,12 @@
 % This function propagates an orbit based on two-body gravitational attraction
 % and constant thrust.
 %
-% FUNCTION DEPENDENCIES: emag, burneqn
+% FUNCTION DEPENDENCIES: emag
 %
 % FUNCTION INPUTS:
 % R0        % Initial position vector (km)
 % V0        % Initial velocity vector (km/s)
 % m0        % Initial mass (kg)
-% mdot      % Mass flow rate (kg/s)
-% F         % Thrust (kN)
 % t_burn    % Burn time (s)
 %
 % FUNCTION OUTPUTS:
@@ -26,7 +24,7 @@
 % Vf        % Final velocity vector [3x1] (km/s)
 
 %% SET INITIAL CONDITIONS
-function [t,n,X,Y,Z,U,V,W,M,Rf,Vf] = burnfcn(R0,V0,m0,mdot,F,t_burn)
+function [t,n,X,Y,Z,U,V,W,M,Rf,Vf] = burnfcn(R0,V0,m0,t_burn)
 tspan = [0 t_burn];             % Time span vector
 y0 = [R0; V0; m0];              % Initial state vector
 
