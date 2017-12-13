@@ -31,6 +31,7 @@ y0 = [R0; V0; m0];              % Initial state vector
 %% SOLVE DIFFERENTIAL EQUATION
 % Uses ode45, a fourth-order Euler integrator.
 fprintf('Calculating burn phase motion ... ')
+warning('off')
 [t,y] = ode45(@burneqn,tspan,y0);
 
 %% ORGANIZE OUTPUT
