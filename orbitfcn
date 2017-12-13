@@ -1,7 +1,7 @@
 %% FUNCTION orbitfcn (c) 2017 Ray Patrick
 % This function propagates an orbit based on two-body gravitational attraction.
 %
-% FUCNTION DEPENDENCIES: emag
+% FUCNTION DEPENDENCIES: emag, orbiteqn
 %
 % FUNCTION INPUTS:
 % R0        % Initial position vector (km)
