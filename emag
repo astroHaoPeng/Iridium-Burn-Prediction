@@ -1,0 +1,13 @@
+%% FUNCTION emag (c) 2017 Ray Patrick
+% Performs element-wise norm operation on three column vectors.
+% INPUTS:
+% X         % Column vector 1
+% Y         % Column vector 2
+% Z         % Column vector 3
+%
+% OUTPUT:
+% R         % Column vector of element-wise magnitudes.
+
+function [R] = emag(X,Y,Z)
+R = sqrt(X.^2 + Y.^2 + Z.^2);
+end
