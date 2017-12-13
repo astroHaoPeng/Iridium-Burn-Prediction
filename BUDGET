@@ -1,11 +1,12 @@
-%% SPIRALBUDGET (c) 2017 Ray Patrick
-% This algorithm computes the required Delta-V, propellant usage, and burn time for a low-thrust "spiral" orbit transfer.
+%% BUDGET (c) 2017 Ray Patrick
+% This algorithm computes the required Delta-V, propellant usage, and burn time
+% for a low-thrust "spiral" orbit transfer.
 % It is assumed that the initial and target orbits are circular and coplanar.
 % FUNCTION DEPENDENCIES: coeprep, prop4dv, saytime
 
 %% INITIALIZATION
 % Initialize Workspace
-clc, clear all, format short;
+clear all, format short;
 
 %% PHYSICAL CONSTANTS
 mu = 398600;                % Standard Gravitational Parameter, Earth (km^3/s^2)
@@ -18,9 +19,10 @@ r_e = 6371;                 % Mean Radius of Earth (km)
 m_dry = 860;                % Vehicle Dry Mass (kg)
 m_prop = 164;               % Propellant Mass (kg)
 m_wet = m_dry+m_prop;       % Vehicle Wet Mass (kg)
+tr = 1;                     % Thrust Produced by One Thruster (N)
 Isp = 220;                  % Specific Impulse of Monopropellant Hydrazine (s)
 Ve = Isp*g0;                % Characteristic Exhaust Velocity, Hydrazine (m/s)
-mdot_t = 1/Ve;              % Mass Flow Rate for One 1-N Thruster (kg/s)
+mdot_t = tr/Ve;             % Mass Flow Rate for One Thruster (kg/s)
 
 %% ORBIT INFORMATION
 % Mission Data (from 2017-003D)
@@ -51,9 +53,10 @@ DV = (sqrt(mu/r1)-sqrt(mu/r2))*1000;  % Required Delta-V (m/s)
 p_used = prop4dv(m_wet,DV,Ve);        % Propellant Used in Manuever (kg)
 mdot = 8*mdot_t;                      % Mass flow rate for 8 thrusters (kg/s)
 t_burn = p_used/mdot;                 % Burn Time (s)
+thrust = 8*tr;                        % Total thrust (N)
 
 %% FILE I/O
-save vars.mat t_burn alt1 alt2 T1 R1eci R2eci V1eci V2eci m_wet mdot g0 mu r_e
+save vars.mat t_burn alt1 alt2 T1 R1eci R2eci V1eci V2eci m_wet mdot thrust
 
 %% OUTPUT
 % Set error messages
