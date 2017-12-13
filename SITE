@@ -1,0 +1,40 @@
+%% SITE (c) 2017 Ray Patrick
+% This algorithm determines the position of an observation site in the Earth-
+% Centered, Earth-Fixed (ECEF) frame.
+% FUNCTION DEPENDENCIES: None
+
+%% INITIALIZATION
+% Initialize Workspace
+clc, clear all, format short;
+
+%% LOAD PHYSICAL CONSTANTS
+mu = 398600;                % Standard Gravitational Parameter, Earth (km^3/s^2)
+r_e = 6371;                 % Mean Radius of Earth (km)
+e_e = 0.081819221456;       % Eccentricity of Earth
+
+%% DETERMINE SITE POSITION COMPONENTS
+% Site Latitude, Longitude, & Elevation
+lat = degtorad(41.752389);    % Site Geodetic Latitude (rad)
+lon = degtorad(70.538078);    % Site Geodetic Longitude (rad)
+elev = 80.4672;               % Site Elevation (Mean Sea Level, m)
+
+% Convert to Ellipsoid Height
+% Reference: earth-info.nga.mil: EGM96 GEOID CALCULATOR
+geoid = -37.61;             % Site Elevation (EGM96 Geoid, m)
+hellp = elev+geoid;         % Height Above Ellipsoid (m)
+
+% Compute Position Components
+denom_e = sqrt(1-e_e^2*sin(lat)^2); % Common Denominator (for efficiency)
+C_e = r_e/denom_e;
+S_e = (r_e*(1-e_e^2))/denom_e;
+r_del = (C_e+hellp)*cos(lat);
+r_k = (S_e+hellp)*sin(lat);
+r_site = sqrt(r_del^2 + r_k^2);     % Magnitude of Site Position Vector (m)
+
+%% CONSTRUCT SITE POSITION VECTOR IN ECEF FRAME
+r_site_ECEF = [r_del*cos(lon),r_del*sin(lon),r_k];  % ECEF Position Vector (m)
+
+%% OUTPUT
+disp('SITETRACK (c) 2017 Ray Patrick');
+disp('ECEF position vector for Cape Cod AFS (km):')
+r_site_ECEF
