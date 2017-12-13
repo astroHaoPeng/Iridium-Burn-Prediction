@@ -1,0 +1,17 @@
+%% FUNCTION prop4dv (c) 2017 Ray Patrick
+% This function computes the amount of propellant required to impart a certain
+% delta-V, given the initial total vehicle mass (including propellant) and the
+% effective exhaust velocity.
+%
+% FUNCTION DEPENDENCIES: None
+%
+% INPUTS:
+% m0        Initial mass (kg)
+% DV        Delta-V (m/s)
+% Ve        Effective exhaust velocity (m/s)
+% OUTPUT:
+% p_used    Propellant used (kg)
+
+function [p_used] = prop4dv(m0,DV,Ve)
+p_used = m0*(1-exp(-DV/Ve));
+end
