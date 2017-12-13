@@ -1,0 +1,54 @@
+%% FUNCTION orbitfcn (c) 2017 Ray Patrick
+% This function propagates an orbit based on two-body gravitational attraction.
+%
+% FUCNTION DEPENDENCIES: emag
+%
+% FUNCTION INPUTS:
+% R0        % Initial position vector (km)
+% V0        % Initial velocity vector (km/s)
+% m0        % Initial mass (kg)
+% t_coast   % Orbit propagation time (s)
+%
+% FUNCTION OUTPUTS:
+% t         % Column vector of times (s)
+% n         % Highest index (integer)
+% X         % Column vector of X-position values (km)
+% Y         % Column vector of Y-position values (km)
+% Z         % Column vector of Z-position values (km)
+% U         % Column vector of X-velocity values (km/s)
+% V         % Column vector of Y-velocity values (km/s)
+% W         % Column vector of Z-velocity values (km/s)
+% Rf        % Final position vector [3x1] (km)
+% Vf        % Final velocity vector [3x1] (km/s)
+
+%% SET INITIAL CONDITIONS
+function [t,n,X,Y,Z,U,V,W,M,Rf,Vf] = orbitfcn(R0,V0,m0,t_coast)
+tspan = [0 t_coast];            % Time span vector
+y0 = [R0; V0; m0];              % Initial state vector
+
+%% SOLVE DIFFERENTIAL EQUATION
+% Uses ode45, a fourth-order Euler integrator.
+% Should use ode23t, a symplectic integrator. Not supported in OCTAVE though.
+fprintf('Calculating coast phase motion ... ')
+warning off;
+[t,y] = ode45(@orbiteqn,tspan,y0);
+
+%% ORGANIZE OUTPUT
+n = numel(t);                   % Final index
+X = y(:,1);                     % X-position (km)
+Y = y(:,2);                     % Y-position (km)
+Z = y(:,3);                     % Z-position (km)
+U = y(:,4);                     % X-velocity (km/s)
+V = y(:,5);                     % Y-velocity (km/s)
+W = y(:,6);                     % Z-velocity (km/s)
+M = y(:,7);                     % Mass (kg)
+R = emag(X,Y,Z);                % Radius (km)
+Rd = emag(U,V,W);               % Velocity (km/s)
+
+%% CONSTRUCT FINAL STATE VECTOR
+Rf = [X(n); Y(n); Z(n);];
+Vf = [U(n); V(n); W(n);];
+
+%% PRINT DONE MESSAGE
+fprintf('Done. \n')
+end
