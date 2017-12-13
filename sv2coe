@@ -1,0 +1,31 @@
+%% FUNCTION sv2coe (c) 2017 Ray Patrick
+% This function accepts Earth-centered inertial (ECI) position and velocity
+% vectors R and V and programatically determines the classical orbital elements
+% (COEs) a, e, i, O, o, nu.
+%
+% FUNCTION DEPENDENCIES: None
+
+function [T,a,e,i,O,o,nu] = sv2coe(R,V);
+mu = 398600;
+r = norm(R);                                        % Magnitude of R
+v = norm(V);                                        % Magnitude of V
+h = cross(R,V);                                     % Angular momentum vector
+n = cross([0;0;1],h);                               % Node vector
+evec = ((v^2 - mu/r)*R - (dot(R,V)*V))/mu;          % Eccentricity vector
+e = norm(evec);                                     % Eccentricity
+E = v^2/2 - mu/r;                                   % Specific Mechanical Energy
+
+if e < 1
+    a = -mu/(2*E);                                  % Semimajor axis (e < 1)
+    p = a*(1-e^2);
+else
+    p = h^2/mu;
+    a = inf;                                        % Semimajor axis (e >= 1)
+end
+
+i = radtodeg(acos(h(3)/norm(h)));                   % Inclination
+O = radtodeg(acos(n(1)/norm(n)));                   % RAAN
+o = radtodeg(acos(dot(n,evec)/(norm(n)*e)));        % Argument of perigee
+nu = radtodeg(acos(dot(evec,R)/(e*r)));             % True anomaly
+T = 2*pi*sqrt(a^3/mu);                              % Period
+end
