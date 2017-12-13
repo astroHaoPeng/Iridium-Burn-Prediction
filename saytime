@@ -1,0 +1,48 @@
+%% FUNCTION saytime (c) 2017 Ray Patrick
+% Accepts a time (s) and a string ("Period", "Burn Time", etc.) and returns a
+% formated statement of the form:
+% 'str: H.HH hr, M.MM min, S.SS sec.'
+
+function[] = saytime(t,str);
+
+if t >= 31557600
+    % For t > 1 year
+    yr = floor(t/31557600);
+    day = floor((t/31557600 - yr)*60);
+    hr = floor((((t/31557600 - yr)*60)-day)*60);
+    min = floor((((((t/31557600 - yr)*60)-day)*60)-hr)*60);
+    sec = ((((((t/31557600 - yr)*60)-day)*60)-hr)*60)-min;
+    fprintf(str);
+    fprintf(': ');
+    fprintf('%4.0f yr %4.0f day %4.0f hr %4.0f min %4.2f sec \n', yr,day,hr,min,sec);
+elseif t >= 86400
+    % For 1 day < t < 1 year
+    day = floor(t/86400);
+    hr = floor((t/86400 - day)*60);
+    min = floor((((t/86400 - day)*60)-hr)*60);
+    sec = ((((t/86400 - day)*60)-hr)*60)-min;
+    fprintf(str);
+    fprintf(': ');
+    fprintf('%4.0f day %4.0f hr %4.0f min %4.2f sec \n', day,hr,min,sec);
+elseif t >= 3600
+    % For t < 1 day
+    hr = floor(t/3600);
+    min = floor((t/3600 - hr)*60);
+    sec = (((t/3600 - hr)*60)-min)*60;
+    fprintf(str);
+    fprintf(': ');
+    fprintf('%4.0f hr %4.0f min %4.2f sec \n', hr,min,sec);
+elseif t >=60
+    % for t < 1 hour
+    min = floor(t/60);
+    sec = (t/60)-min;
+    fprintf(str);
+    fprintf(': ');
+    fprintf('%4.0f min %4.2f sec \n', min,sec);
+else
+    % for t < 1 second
+    sec = t;
+    fprintf(str);
+    fprintf(': ');
+    fprintf('%4.2f sec \n', sec);
+end
