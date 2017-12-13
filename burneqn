@@ -1,0 +1,24 @@
+%% FUNCTION burneqn (c) 2017 Ray Patrick
+% This function provides the vector to be integrated by the ode45 numeric
+% integration solver. It is equivalent to the time derivative of the satellite
+% state vector. This version of the vector includes thrust terms.
+% FUNCTION DEPENDENCIES: None
+
+function [dydt] = burneqn(t,y)
+% Constants and ICs
+mu = 398600;                % Earth gravitational parameter (km^3/s^2)
+load vars.mat mdot thrust   % Load mass flow rate and thrust from SPIRALBUDGET
+F = thrust/1000;            % Thrust (kN)
+
+% ODE Vector (2-body equation plus acceleration from thrust)
+dydt(1) = y(4);
+dydt(2) = y(5);
+dydt(3) = y(6);
+dydt(4) = -mu*y(1)*(y(1)^2+y(2)^2+y(3)^2)^(-3/2)+ ...
+    (F*y(4))/(y(7)*sqrt(y(4)^2+y(5)^2+y(6)^2));
+dydt(5) = -mu*y(2)*(y(1)^2+y(2)^2+y(3)^2)^(-3/2)+ ...
+    (F*y(5))/(y(7)*sqrt(y(4)^2+y(5)^2+y(6)^2));
+dydt(6) = -mu*y(3)*(y(1)^2+y(2)^2+y(3)^2)^(-3/2)+ ...
+    (F*y(6))/(y(7)*sqrt(y(4)^2+y(5)^2+y(6)^2));
+dydt(7) = -mdot;
+end
