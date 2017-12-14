@@ -51,6 +51,14 @@ R2eci=transpose(R2eci);V2eci=transpose(V2eci);
 % the orbital altitude from 625 km to 780 km.
 DV = (sqrt(mu/r1)-sqrt(mu/r2))*1000;  % Required Delta-V (m/s)
 p_used = prop4dv(m_wet,DV,Ve);        % Propellant Used in Manuever (kg)
+
+% If the maneuver requires more propellant than is possible, terminate script
+if p_used > m_prop
+    disp('Not enough propellant for maneuver.')
+    exit(1)
+else
+end
+
 mdot = 8*mdot_t;                      % Mass flow rate for 8 thrusters (kg/s)
 t_burn = p_used/mdot;                 % Burn Time (s)
 thrust = 8*tr;                        % Total thrust (N)
